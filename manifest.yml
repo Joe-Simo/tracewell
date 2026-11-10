@@ -1,0 +1,162 @@
+# Tracewell: design-control traceability for Jira and Confluence.
+# app.id is added by `forge register` once a Forge login exists (not done yet).
+app:
+  id: ari:cloud:ecosystem::app/00000000-0000-0000-0000-000000000000
+  runtime:
+    name: nodejs24.x
+    architecture: arm64
+    memoryMB: 256
+
+modules:
+  jira:issuePanel:
+    - key: tracewell-issue-panel
+      title: Tracewell trace
+      resource: issue-panel
+      render: native
+      resolver:
+        function: ui-resolver
+  jira:projectPage:
+    - key: tracewell-project-page
+      title: Tracewell
+      resource: project-page
+      render: native
+      resolver:
+        function: ui-resolver
+
+  rovo:agent:
+    - key: tracewell-agent
+      name: Tracewell
+      description: Checks design-control traceability in Jira, explains change impact and tells you whether a release is ready.
+      prompt: resource:agent-resource;prompt.txt
+      conversationStarters:
+        - What trace gaps block this project?
+        - What must be re-tested if this requirement changes?
+        - Is version 2.1.0 ready to release?
+      actions:
+        - get-trace-gaps
+        - get-trace-chain
+        - analyze-change-impact
+        - get-release-readiness
+        - publish-trace-report
+      skills:
+        - design-control-release-check
+
+  rovo:skill:
+    - key: design-control-release-check
+      source:
+        dir: skills/design-control-release-check
+      dependencies:
+        tools:
+          - get-release-readiness
+          - analyze-change-impact
+          - publish-trace-report
+
+  rovo:mcp:
+    - key: tracewell-mcp
+      name: Tracewell
+      tools:
+        - get-trace-gaps
+        - get-trace-chain
+        - analyze-change-impact
+        - get-release-readiness
+
+  action:
+    - key: get-trace-gaps
+      name: Get trace gaps
+      function: get-trace-gaps-fn
+      actionVerb: GET
+      description: List missing trace links, orphan items, failed, unrun and suspect tests in a Jira project.
+      inputs:
+        projectKey:
+          title: Project key
+          type: string
+          required: true
+          description: The Jira project key, for example MED.
+    - key: get-trace-chain
+      name: Get trace chain
+      function: get-trace-chain-fn
+      actionVerb: GET
+      description: Show what a Jira issue traces to upstream and what traces to it downstream, with its gaps.
+      inputs:
+        issueKey:
+          title: Issue key
+          type: string
+          required: true
+          description: The Jira issue key, for example MED-12.
+    - key: analyze-change-impact
+      name: Analyze change impact
+      function: analyze-change-impact-fn
+      actionVerb: GET
+      description: List the tests to re-run, items to review and hazards involved if a Jira issue changes.
+      inputs:
+        issueKey:
+          title: Issue key
+          type: string
+          required: true
+          description: The Jira issue key that is changing.
+    - key: get-release-readiness
+      name: Get release readiness
+      function: get-release-readiness-fn
+      actionVerb: GET
+      description: Decide whether a fix version is ready to release based on trace coverage and test status.
+      inputs:
+        projectKey:
+          title: Project key
+          type: string
+          required: true
+          description: The Jira project key.
+        version:
+          title: Fix version
+          type: string
+          required: true
+          description: The Jira fix version name, for example 2.1.0.
+    - key: publish-trace-report
+      name: Publish trace report
+      function: publish-trace-report-fn
+      actionVerb: CREATE
+      description: Create a Confluence page with the release trace matrix, coverage and blockers.
+      inputs:
+        projectKey:
+          title: Project key
+          type: string
+          required: true
+          description: The Jira project key.
+        version:
+          title: Fix version
+          type: string
+          required: true
+          description: The Jira fix version name.
+        spaceId:
+          title: Confluence space id
+          type: string
+          required: true
+          description: The numeric id of the Confluence space for the report page.
+
+  function:
+    - key: ui-resolver
+      handler: index.uiResolver
+    - key: get-trace-gaps-fn
+      handler: index.getTraceGaps
+    - key: get-trace-chain-fn
+      handler: index.getTraceChain
+    - key: analyze-change-impact-fn
+      handler: index.analyzeChangeImpact
+    - key: get-release-readiness-fn
+      handler: index.getReleaseReadiness
+    - key: publish-trace-report-fn
+      handler: index.publishTraceReport
+
+resources:
+  - key: issue-panel
+    path: src/frontend/issue-panel.tsx
+  - key: project-page
+    path: src/frontend/project-page.tsx
+  - key: agent-resource
+    path: resources/agent
+
+permissions:
+  scopes:
+    - read:jira-work
+    - read:page:confluence
+    - write:page:confluence
+    - read:space:confluence
