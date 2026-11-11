@@ -56,4 +56,11 @@ describe('jira adapter', () => {
     expect(isIssueKey('MED-12')).toBe(true);
     expect(isIssueKey('med-12')).toBe(false);
   });
+  it('uses the status change date when the workflow sets no resolution', () => {
+    const t = issue({ key: 'R-1', type: 'Test Case', summary: 't', done: true });
+    t.fields.statuscategorychangedate = '2026-11-10T08:00:00.000+0000';
+    const it0 = fromJira([t], DEFAULT_CONFIG).items[0];
+    expect(it0.result).toBe('pass');
+    expect(it0.completedAt).toBe('2026-11-10T08:00:00.000+0000');
+  });
 });

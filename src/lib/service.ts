@@ -33,6 +33,7 @@ export const FIELDS = [
   'created',
   'updated',
   'resolutiondate',
+  'statuscategorychangedate',
   'fixVersions',
   'issuelinks',
 ];

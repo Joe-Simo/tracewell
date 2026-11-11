@@ -13,6 +13,8 @@ export interface JiraIssue {
     created?: string;
     updated?: string;
     resolutiondate?: string | null;
+    /** When the status category last changed; used if the workflow sets no resolution. */
+    statuscategorychangedate?: string | null;
     fixVersions?: { name: string }[];
     issuelinks?: JiraLink[];
   };
@@ -79,7 +81,8 @@ export function toItem(issue: JiraIssue, cfg: TraceConfig): TraceItem | undefine
   };
   if (isTest) {
     item.result = failed ? 'fail' : done ? 'pass' : 'none';
-    if (done && f.resolutiondate) item.completedAt = f.resolutiondate;
+    const completed = f.resolutiondate ?? f.statuscategorychangedate;
+    if (done && completed) item.completedAt = completed;
   }
   return item;
 }
