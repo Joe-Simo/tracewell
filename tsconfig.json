@@ -3,7 +3,10 @@
     "target": "ES2022",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": ["ES2022", "DOM"],
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "jsx": "react-jsx",
     "strict": true,
     "noUnusedLocals": true,
@@ -11,7 +14,15 @@
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": [
+      "node"
+    ],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["src", "test"]
+  "include": [
+    "src",
+    "test",
+    "scripts"
+  ]
 }
