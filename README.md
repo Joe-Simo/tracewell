@@ -30,9 +30,14 @@ Teams that build regulated products (medical device software, automotive, aerosp
 
 Scopes: `read:jira-work`, `write:jira-work` (comments and the settings property), `read:space:confluence`, `read:page:confluence`, `write:page:confluence`. No egress: Tracewell calls only Atlassian APIs.
 
+## Links
+
+- Source: https://github.com/Joe-Simo/tracewell
+- Installation link: INSTALL_LINK (Forge distribution link, being generated in the developer console)
+
 ## Install (judges)
 
-1. Open the installation link from the Devpost submission and install Tracewell on your Jira and Confluence site.
+1. Open the installation link and install Tracewell on your Jira and Confluence site (it asks for both).
 2. In any Jira project, create a few issues with Tracewell labels, or use issue types with these names:
 
    | Kind | Issue type names | Label |
@@ -59,7 +64,8 @@ Scopes: `read:jira-work`, `write:jira-work` (comments and the settings property)
 
 ```
 pnpm install
-pnpm test               # vitest, runs fully offline against an in-memory Jira and Confluence
+pnpm test               # 92 vitest tests, fully offline against an in-memory Jira and Confluence
+                        # plus an opt-in live smoke test: see test/live.test.ts
 pnpm typecheck
 pnpm validate:manifest  # the Forge CLI's own manifest validator, offline
 forge deploy && forge install

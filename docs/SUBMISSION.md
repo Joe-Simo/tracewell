@@ -1,6 +1,9 @@
 # Devpost submission draft: Tracewell
 
-Fill-ins still needed: INSTALL_LINK, YOUTUBE_URL, REPO_URL (optional).
+Fill-ins still needed: INSTALL_LINK, YOUTUBE_URL.
+
+- Repo: https://github.com/Joe-Simo/tracewell (public, MIT)
+- Forge app id: ari:cloud:ecosystem::app/537ed219-00cd-47b6-9870-0dcbe1c6c5b2 (production, installed on the demo site in Jira and Confluence)
 
 ## Category
 Apps for Specialized Industries
@@ -28,7 +31,7 @@ Tracewell turns ordinary Jira issues and links into a live design-control trace:
 - Per-project settings map your own issue types, labels and link types.
 
 ## How we built it
-Forge (Node.js 24 runtime), UI Kit for all screens, Forge resolvers, a Jira product trigger, Rovo agent, skill, action and MCP modules, and Jira REST v3 plus Confluence REST v2 called through `requestJira` and `requestConfluence`. The trace engine is pure TypeScript with no Forge imports, so every rule is covered by Vitest tests against an in-memory Jira and Confluence (TEST_COUNT tests). The manifest is checked with the Forge CLI's own validator.
+Forge (Node.js 24 runtime), UI Kit for all screens, Forge resolvers, a Jira product trigger, Rovo agent, skill, action and MCP modules, and Jira REST v3 plus Confluence REST v2 called through `requestJira` and `requestConfluence`. The trace engine is pure TypeScript with no Forge imports, so every rule is covered by Vitest tests against an in-memory Jira and Confluence (92 tests), plus an opt-in smoke test against a live site. The manifest is checked with the Forge CLI's own validator.
 
 ## How it meets the main technology requirement
 It is a Forge app (manifest plus Forge modules) that integrates Jira (issue panel, project page, project settings page, trigger, REST), Confluence (page create and versioned update) and Rovo (agent, skill, actions, MCP).
@@ -42,6 +45,9 @@ The `rovo:mcp` module exposes `get-trace-gaps`, `get-trace-chain`, `analyze-chan
 ## Challenges
 Link direction: Jira links can be drawn either way, so Tracewell derives direction from the design-control chain. Suspect detection: only content edits (summary, description, acceptance criteria, labels) should invalidate a test, not status moves or comments, so Tracewell reads the changelog.
 
+## Verified on a live site
+On the demo site the seed script created 15 linked items (MED-1 to MED-15). Release 2.1.0 reports NOT READY with two blockers (MED-9 failed, MED-10 not run). Editing the dose cap requirement MED-3 made the suspect-link trigger comment on its passed test MED-8 and on MED-3 within seconds. Publishing the report created a Confluence page in QMS, and publishing again moved it to version 2 with the verdict as the version message.
+
 ## Accomplishments
 A complete product loop: model, rules, UI, automation, agent, MCP and a Confluence audit trail, all from data teams already keep in Jira.
 
@@ -52,7 +58,7 @@ Rovo actions work best when they return short, structured verdicts that an agent
 Teamwork Graph links to code and builds, signed review records, and a Marketplace listing.
 
 ## Testing instructions
-See README "Install (judges)". Install from INSTALL_LINK, then either label a few issues or run the seed script, open the Tracewell project page, and ask the Tracewell agent in Rovo "Is version 2.1.0 ready to release?".
+See README "Install (judges)". Install from INSTALL_LINK (source: https://github.com/Joe-Simo/tracewell), then either label a few issues or run the seed script, open the Tracewell project page, and ask the Tracewell agent in Rovo "Is version 2.1.0 ready to release?".
 
 ## Built with
 atlassian-forge, jira, confluence, rovo, mcp, typescript, react, ui-kit, vitest
