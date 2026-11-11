@@ -24,6 +24,22 @@ modules:
       resolver:
         function: ui-resolver
 
+  jira:projectSettingsPage:
+    - key: tracewell-settings
+      title: Tracewell
+      resource: settings-page
+      render: native
+      resolver:
+        function: ui-resolver
+
+  trigger:
+    - key: tracewell-suspect-trigger
+      function: suspect-fn
+      events:
+        - avi:jira:updated:issue
+      filter:
+        ignoreSelf: true
+
   rovo:agent:
     - key: tracewell-agent
       name: Tracewell
@@ -33,11 +49,13 @@ modules:
         - What trace gaps block this project?
         - What must be re-tested if this requirement changes?
         - Is version 2.1.0 ready to release?
+        - Are all hazards controlled and verified?
       actions:
         - get-trace-gaps
         - get-trace-chain
         - analyze-change-impact
         - get-release-readiness
+        - get-risk-controls
         - publish-trace-report
       skills:
         - design-control-release-check
@@ -50,6 +68,7 @@ modules:
         tools:
           - get-release-readiness
           - analyze-change-impact
+          - get-risk-controls
           - publish-trace-report
 
   rovo:mcp:
@@ -60,6 +79,7 @@ modules:
         - get-trace-chain
         - analyze-change-impact
         - get-release-readiness
+        - get-risk-controls
 
   action:
     - key: get-trace-gaps
@@ -111,11 +131,27 @@ modules:
           type: string
           required: true
           description: The Jira fix version name, for example 2.1.0.
+    - key: get-risk-controls
+      name: Get risk controls
+      function: risk-fn
+      actionVerb: GET
+      description: List hazards with their risk controls, the verification tests for each control, and whether each hazard is controlled, partial or open.
+      inputs:
+        projectKey:
+          title: Project key
+          type: string
+          required: true
+          description: The Jira project key.
+        version:
+          title: Fix version
+          type: string
+          required: false
+          description: Optional fix version name to limit the list to one release.
     - key: publish-trace-report
       name: Publish trace report
       function: report-fn
       actionVerb: CREATE
-      description: Create a Confluence page with the release trace matrix, coverage and blockers.
+      description: Create or update a Confluence page with the release trace matrix, risk controls, coverage and blockers. Each publish adds a page version.
       inputs:
         projectKey:
           title: Project key
@@ -127,11 +163,16 @@ modules:
           type: string
           required: true
           description: The Jira fix version name.
+        spaceKey:
+          title: Confluence space key
+          type: string
+          required: false
+          description: The key of the Confluence space for the report page, for example QMS.
         spaceId:
           title: Confluence space id
           type: string
-          required: true
-          description: The numeric id of the Confluence space for the report page.
+          required: false
+          description: The numeric Confluence space id. Use instead of spaceKey if known.
 
   function:
     - key: ui-resolver
@@ -144,14 +185,20 @@ modules:
       handler: index.analyzeChangeImpact
     - key: readiness-fn
       handler: index.getReleaseReadiness
+    - key: risk-fn
+      handler: index.getRiskControls
     - key: report-fn
       handler: index.publishTraceReport
+    - key: suspect-fn
+      handler: index.issueUpdated
 
 resources:
   - key: issue-panel
     path: src/frontend/issue-panel.tsx
   - key: project-page
     path: src/frontend/project-page.tsx
+  - key: settings-page
+    path: src/frontend/settings-page.tsx
   - key: agent-resource
     path: resources/agent
   - key: assets
@@ -160,6 +207,7 @@ resources:
 permissions:
   scopes:
     - read:jira-work
+    - write:jira-work
     - read:page:confluence
     - write:page:confluence
     - read:space:confluence
