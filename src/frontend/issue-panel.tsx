@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ForgeReconciler, { Box, Heading, Lozenge, SectionMessage, Spinner, Stack, Text, Inline } from '@forge/react';
-import { invoke } from '@forge/bridge';
+import { call } from './call';
 
 type Brief = { key: string; kind: string; summary: string; status?: string };
 type Trace = {
@@ -36,7 +36,7 @@ const App = () => {
   const [data, setData] = useState<Trace | null | undefined>(undefined);
   const [error, setError] = useState<string>();
   useEffect(() => {
-    invoke<Trace | null>('issueTrace').then(setData, (e) => setError(String(e)));
+    call<Trace | null>('issueTrace').then(setData, (e) => setError(String(e)));
   }, []);
   if (error) return <SectionMessage appearance="error">{error}</SectionMessage>;
   if (data === undefined) return <Spinner />;

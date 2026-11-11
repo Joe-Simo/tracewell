@@ -11,6 +11,7 @@ modules:
   jira:issuePanel:
     - key: tracewell-issue-panel
       title: Tracewell trace
+      icon: resource:assets;tracewell.svg
       resource: issue-panel
       render: native
       resolver:
@@ -63,7 +64,7 @@ modules:
   action:
     - key: get-trace-gaps
       name: Get trace gaps
-      function: get-trace-gaps-fn
+      function: gaps-fn
       actionVerb: GET
       description: List missing trace links, orphan items, failed, unrun and suspect tests in a Jira project.
       inputs:
@@ -74,7 +75,7 @@ modules:
           description: The Jira project key, for example MED.
     - key: get-trace-chain
       name: Get trace chain
-      function: get-trace-chain-fn
+      function: chain-fn
       actionVerb: GET
       description: Show what a Jira issue traces to upstream and what traces to it downstream, with its gaps.
       inputs:
@@ -85,7 +86,7 @@ modules:
           description: The Jira issue key, for example MED-12.
     - key: analyze-change-impact
       name: Analyze change impact
-      function: analyze-change-impact-fn
+      function: impact-fn
       actionVerb: GET
       description: List the tests to re-run, items to review and hazards involved if a Jira issue changes.
       inputs:
@@ -96,7 +97,7 @@ modules:
           description: The Jira issue key that is changing.
     - key: get-release-readiness
       name: Get release readiness
-      function: get-release-readiness-fn
+      function: readiness-fn
       actionVerb: GET
       description: Decide whether a fix version is ready to release based on trace coverage and test status.
       inputs:
@@ -112,7 +113,7 @@ modules:
           description: The Jira fix version name, for example 2.1.0.
     - key: publish-trace-report
       name: Publish trace report
-      function: publish-trace-report-fn
+      function: report-fn
       actionVerb: CREATE
       description: Create a Confluence page with the release trace matrix, coverage and blockers.
       inputs:
@@ -135,15 +136,15 @@ modules:
   function:
     - key: ui-resolver
       handler: index.uiResolver
-    - key: get-trace-gaps-fn
+    - key: gaps-fn
       handler: index.getTraceGaps
-    - key: get-trace-chain-fn
+    - key: chain-fn
       handler: index.getTraceChain
-    - key: analyze-change-impact-fn
+    - key: impact-fn
       handler: index.analyzeChangeImpact
-    - key: get-release-readiness-fn
+    - key: readiness-fn
       handler: index.getReleaseReadiness
-    - key: publish-trace-report-fn
+    - key: report-fn
       handler: index.publishTraceReport
 
 resources:
@@ -153,6 +154,8 @@ resources:
     path: src/frontend/project-page.tsx
   - key: agent-resource
     path: resources/agent
+  - key: assets
+    path: resources/assets
 
 permissions:
   scopes:

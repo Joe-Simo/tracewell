@@ -9,7 +9,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
-    "lint:forge": "forge lint"
+    "lint:forge": "forge lint",
+    "validate:manifest": "node scripts/validate-manifest.cjs"
   },
   "dependencies": {
     "@forge/api": "^8.4.0",

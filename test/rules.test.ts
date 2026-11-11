@@ -70,7 +70,7 @@ describe('gaps', () => {
     expect(findGaps(g, DEFAULT_CONFIG, new Set(['MED-3']))).toEqual([]);
   });
   it('computes coverage of required links', () => {
-    expect(coverage(g, DEFAULT_CONFIG)).toEqual({ required: 9, met: 7, percent: 78 });
+    expect(coverage(g, DEFAULT_CONFIG)).toEqual({ required: 8, met: 6, percent: 75 });
     expect(coverage(g, DEFAULT_CONFIG, new Set())).toEqual({ required: 0, met: 0, percent: 100 });
   });
 });

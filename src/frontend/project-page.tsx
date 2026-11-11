@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ForgeReconciler, {
   Button,
   DynamicTable,
@@ -11,7 +11,7 @@ import ForgeReconciler, {
   Text,
   Textfield,
 } from '@forge/react';
-import { invoke } from '@forge/bridge';
+import { call } from './call';
 
 type Item = { key: string; summary: string };
 type Row = { need: Item; inputs: Item[]; outputs: Item[]; verifications: Item[]; validations: Item[] };
@@ -32,7 +32,7 @@ const App = () => {
   const [version, setVersion] = useState('');
   const [ready, setReady] = useState<Ready>();
   useEffect(() => {
-    invoke<Overview>('overview').then(setO, (e) => setError(String(e)));
+    call<Overview>('overview').then(setO, (e) => setError(String(e)));
   }, []);
   if (error) return <SectionMessage appearance="error">{error}</SectionMessage>;
   if (!o) return <Spinner />;
@@ -48,7 +48,7 @@ const App = () => {
       <Text>{`${o.coverage.met} of ${o.coverage.required} required trace links in ${o.projectKey}.`}</Text>
       <Inline space="space.100" alignBlock="end">
         <Textfield name="version" placeholder="Fix version, e.g. 2.1.0" onChange={(e) => setVersion(e.target.value)} />
-        <Button onClick={() => invoke<Ready>('readiness', { version }).then(setReady, (e) => setError(String(e)))}>
+        <Button onClick={() => call<Ready>('readiness', { version }).then(setReady, (e) => setError(String(e)))}>
           Check release
         </Button>
       </Inline>
