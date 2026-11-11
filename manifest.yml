@@ -1,7 +1,7 @@
 # Tracewell: design-control traceability for Jira and Confluence.
-# app.id is added by `forge register` once a Forge login exists (not done yet).
+# app.id was set by `forge register` (developer space: Joe Simo Apps).
 app:
-  id: ari:cloud:ecosystem::app/00000000-0000-0000-0000-000000000000
+  id: ari:cloud:ecosystem::app/537ed219-00cd-47b6-9870-0dcbe1c6c5b2
   runtime:
     name: nodejs24.x
     architecture: arm64
@@ -43,7 +43,8 @@ modules:
   rovo:agent:
     - key: tracewell-agent
       name: Tracewell
-      description: Checks design-control traceability in Jira, explains change impact and tells you whether a release is ready.
+      description: Checks design-control traceability in Jira, explains change impact
+        and tells you whether a release is ready.
       prompt: resource:agent-resource;prompt.txt
       conversationStarters:
         - What trace gaps block this project?
@@ -86,7 +87,8 @@ modules:
       name: Get trace gaps
       function: gaps-fn
       actionVerb: GET
-      description: List missing trace links, orphan items, failed, unrun and suspect tests in a Jira project.
+      description: List missing trace links, orphan items, failed, unrun and suspect
+        tests in a Jira project.
       inputs:
         projectKey:
           title: Project key
@@ -97,7 +99,8 @@ modules:
       name: Get trace chain
       function: chain-fn
       actionVerb: GET
-      description: Show what a Jira issue traces to upstream and what traces to it downstream, with its gaps.
+      description: Show what a Jira issue traces to upstream and what traces to it
+        downstream, with its gaps.
       inputs:
         issueKey:
           title: Issue key
@@ -108,7 +111,8 @@ modules:
       name: Analyze change impact
       function: impact-fn
       actionVerb: GET
-      description: List the tests to re-run, items to review and hazards involved if a Jira issue changes.
+      description: List the tests to re-run, items to review and hazards involved if a
+        Jira issue changes.
       inputs:
         issueKey:
           title: Issue key
@@ -119,7 +123,8 @@ modules:
       name: Get release readiness
       function: readiness-fn
       actionVerb: GET
-      description: Decide whether a fix version is ready to release based on trace coverage and test status.
+      description: Decide whether a fix version is ready to release based on trace
+        coverage and test status.
       inputs:
         projectKey:
           title: Project key
@@ -135,7 +140,8 @@ modules:
       name: Get risk controls
       function: risk-fn
       actionVerb: GET
-      description: List hazards with their risk controls, the verification tests for each control, and whether each hazard is controlled, partial or open.
+      description: List hazards with their risk controls, the verification tests for
+        each control, and whether each hazard is controlled, partial or open.
       inputs:
         projectKey:
           title: Project key
@@ -151,7 +157,8 @@ modules:
       name: Publish trace report
       function: report-fn
       actionVerb: CREATE
-      description: Create or update a Confluence page with the release trace matrix, risk controls, coverage and blockers. Each publish adds a page version.
+      description: Create or update a Confluence page with the release trace matrix,
+        risk controls, coverage and blockers. Each publish adds a page version.
       inputs:
         projectKey:
           title: Project key
