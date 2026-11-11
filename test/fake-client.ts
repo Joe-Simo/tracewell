@@ -25,6 +25,8 @@ export function fakeClient(opts: FakeOptions = {}): AtlassianClient & { calls: C
     if (custom) return custom;
     if (call.api === 'jira') {
       if (call.path === '/rest/api/3/search/jql') {
+        // A search without a page token starts a new load from the first page.
+        if (!(call.body as { nextPageToken?: string } | undefined)?.nextPageToken) page = 0;
         const issues = pages[page] ?? [];
         page++;
         return { status: 200, body: { issues, ...(page < pages.length ? { nextPageToken: `t${page}` } : {}) } };
