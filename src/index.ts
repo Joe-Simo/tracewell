@@ -54,7 +54,12 @@ export const getRiskControls = (p: Payload) => actions.getRiskControls(p);
 export const publishTraceReport = (p: Payload) => actions.publishTraceReport(p);
 
 // Suspect-link automation (runs as the app, on Jira issue updates).
-export const issueUpdated = (event: IssueUpdatedEvent) => onIssueUpdated(appClient, event, base);
+export const issueUpdated = async (event: IssueUpdatedEvent) => {
+  const result = await onIssueUpdated(appClient, event, base);
+  // Issue keys and outcomes only, no issue content, so `forge logs` shows what happened.
+  console.log(`tracewell suspect-trigger ${JSON.stringify(result)}`);
+  return result;
+};
 
 // UI resolvers
 type Ctx = { extension?: { issue?: { key?: string }; project?: { key?: string } } };

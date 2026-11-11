@@ -38,7 +38,9 @@ async function safe<T>(fn: () => Promise<T>): Promise<T | { error: string }> {
   try {
     return await fn();
   } catch (e) {
-    return { error: e instanceof Error ? e.message : String(e) };
+    const error = e instanceof Error ? e.message : String(e);
+    console.warn(`tracewell action error: ${error}`);
+    return { error };
   }
 }
 
