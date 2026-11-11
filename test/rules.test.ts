@@ -5,7 +5,7 @@ import { buildGraph } from '../src/lib/model';
 import { ancestors, coverage, descendants, findGaps, suspectSources } from '../src/lib/rules';
 import { changeImpact } from '../src/lib/impact';
 import { releaseReadiness, releaseScope } from '../src/lib/readiness';
-import { matrixCsv, traceMatrix } from '../src/lib/matrix';
+import { matrixCsv, riskMatrix, traceMatrix } from '../src/lib/matrix';
 import { esc, reportStorage } from '../src/lib/report';
 import { issue, medProject } from './fixture';
 
@@ -139,9 +139,47 @@ describe('matrix and report', () => {
   });
   it('escapes storage format and shows the verdict', () => {
     expect(esc('<a & "b">')).toBe('&lt;a &amp; &quot;b&quot;&gt;');
-    const html = reportStorage(releaseReadiness(g, DEFAULT_CONFIG, '2.1.0'), traceMatrix(g), '2026-11-09T18:00:00Z');
+    const html = reportStorage({
+      readiness: releaseReadiness(g, DEFAULT_CONFIG, '2.1.0'),
+      matrix: traceMatrix(g),
+      risks: riskMatrix(g),
+      generatedAt: '2026-11-09 18:00 UTC',
+      siteUrl: 'https://example.atlassian.net/',
+    });
     expect(html).toContain('NOT READY');
     expect(html).toContain('<h2>Blockers</h2>');
-    expect(html).toContain('MED-1 Patients get a safe bolus suggestion');
+    expect(html).toContain('>MED-1</a> Patients get a safe bolus suggestion');
+    expect(html).toContain('href="https://example.atlassian.net/browse/MED-4"');
+    expect(html).toContain('<h2>Risk controls</h2>');
+    expect(html).toContain('PARTIAL');
+  });
+  it('omits links when the site URL is unknown', () => {
+    const html = reportStorage({ readiness: releaseReadiness(g, DEFAULT_CONFIG, '2.1.0'), matrix: traceMatrix(g), risks: [], generatedAt: 'now' });
+    expect(html).not.toContain('<a href');
+    expect(html).not.toContain('Risk controls');
+  });
+  it('scopes the matrix to a release', () => {
+    expect(traceMatrix(g, new Set(['MED-9']))).toEqual([]);
+    expect(traceMatrix(g, releaseScope(g, '2.1.0'))).toHaveLength(1);
+  });
+});
+
+describe('risk matrix', () => {
+  it('marks a hazard partial while its control is unverified', () => {
+    const rows = riskMatrix(graph());
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ state: 'partial' });
+    expect(rows[0].controls.map((c) => c.key)).toEqual(['MED-7']);
+    expect(rows[0].verifications.map((c) => c.key)).toEqual(['MED-8']);
+  });
+  it('marks a hazard controlled once every control has a passing test', () => {
+    const issues = medProject();
+    issues[7].fields.status = { name: 'Done', statusCategory: { key: 'done' } };
+    issues[7].fields.resolutiondate = '2026-11-09T12:00:00.000+0000';
+    expect(riskMatrix(graph(issues))[0].state).toBe('controlled');
+  });
+  it('marks a hazard with no control open', () => {
+    const rows = riskMatrix(graph([issue({ key: 'H-1', type: 'Hazard', summary: 'Battery fire' })]));
+    expect(rows[0].state).toBe('open');
   });
 });
