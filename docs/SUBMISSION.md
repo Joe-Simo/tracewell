@@ -31,7 +31,7 @@ Tracewell turns ordinary Jira issues and links into a live design-control trace:
 - Per-project settings map your own issue types, labels and link types.
 
 ## How we built it
-Forge (Node.js 24 runtime), UI Kit for all screens, Forge resolvers, a Jira product trigger, Rovo agent, skill, action and MCP modules, and Jira REST v3 plus Confluence REST v2 called through `requestJira` and `requestConfluence`. The trace engine is pure TypeScript with no Forge imports, so every rule is covered by Vitest tests against an in-memory Jira and Confluence (92 tests), plus an opt-in smoke test against a live site. The manifest is checked with the Forge CLI's own validator.
+Forge (Node.js 24 runtime), UI Kit for all screens, Forge resolvers, a Jira product trigger, Rovo agent, skill, action and MCP modules, and Jira REST v3 plus Confluence REST v2 called through `requestJira` and `requestConfluence`. The trace engine is pure TypeScript with no Forge imports, so every rule is covered by Vitest tests against an in-memory Jira and Confluence (96 tests), plus an opt-in smoke test against a live site. The manifest is checked with the Forge CLI's own validator.
 
 ## How it meets the main technology requirement
 It is a Forge app (manifest plus Forge modules) that integrates Jira (issue panel, project page, project settings page, trigger, REST), Confluence (page create and versioned update) and Rovo (agent, skill, actions, MCP).

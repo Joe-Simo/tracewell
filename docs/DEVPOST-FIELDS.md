@@ -39,7 +39,7 @@ Tracewell checks traceability. It does not certify compliance, and the report sa
 | Confluence REST v2 through Forge | Creates the trace report page, then updates the same page on every publish. | Page history gives reviewers a dated record of every release check. | Report page in the QMS space went to version 2 on republish, with the verdict as the version message. |
 | Rovo agent, skill and actions | `tracewell-agent` has six actions (five reads plus publish report) and the reusable `design-control-release-check` skill. Actions return short, capped JSON with a clear verdict. | Release reviews start with a question, not a spreadsheet. A grounded verdict keeps the agent from guessing. | The same action code run against the demo site returns NOT READY for 2.1.0 with two blockers: MED-9 failed and MED-10 not run. |
 | Atlassian MCP (`rovo:mcp`) | Exposes the five read-only actions as MCP tools. Write actions are not exposed. | Teams can run the release check from their own MCP client, with the user's own Jira permissions. | Five tools declared; a test fails the build if any MCP tool is not a read (GET) action. |
-| Trace engine in plain TypeScript | No Forge imports in the rules, so every rule runs in Vitest against an in-memory Jira and Confluence. | Rules for gaps, coverage, risk state and suspect tests can be checked offline and fast. | 92 passing tests, plus 2 opt-in smoke tests against a live site. The manifest is checked with the Forge CLI's own validator. |
+| Trace engine in plain TypeScript | No Forge imports in the rules, so every rule runs in Vitest against an in-memory Jira and Confluence. | Rules for gaps, coverage, risk state and suspect tests can be checked offline and fast. | 96 passing tests, plus 2 opt-in smoke tests against a live site. The manifest is checked with the Forge CLI's own validator. |
 
 ## Challenges we ran into
 
@@ -144,7 +144,7 @@ Apps for Specialized Industries
 6. Release tab: publish the trace report to a Confluence space key you own. Publish again and open the page history to see version 2.
 7. Project settings > Tracewell: edit the JSON mapping to use your own issue types, labels or link types. Invalid settings are reported and the defaults stay in use.
 8. Rovo (if Rovo is enabled on your site): open Rovo chat, choose the Tracewell agent and ask "Is version 2.1.0 ready to release?" or "What must be re-tested if <requirement key> changes?". Note: we could not open Rovo chat on our own developer site, so we have tested the action code directly and through the Forge entry points, but not inside Rovo chat.
-9. Offline: `pnpm install && pnpm test` runs 92 tests against an in-memory Jira and Confluence.
+9. Offline: `pnpm install && pnpm test` runs 96 tests against an in-memory Jira and Confluence.
 
 We do not share credentials for our demo site. Everything above runs on your own site.
 
