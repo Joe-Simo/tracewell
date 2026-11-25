@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { makeActions, MAX_LINES } from '../src/lib/actions';
-import { loadIssues, MAX_ISSUES } from '../src/lib/service';
+import { loadContext, loadIssues, loadIssuesCapped, MAX_ISSUES, TRUNCATED_NOTE } from '../src/lib/service';
 import type { AtlassianClient } from '../src/lib/service';
 import { fakeClient } from './fake-client';
 import { issue, medProject } from './fixture';
@@ -19,6 +19,15 @@ describe('loading', () => {
     const big = Array.from({ length: 100 }, () => medProject()[0]);
     const c = fakeClient({ pages: Array.from({ length: 15 }, () => big) });
     expect(await loadIssues(c, 'MED')).toHaveLength(MAX_ISSUES);
+  });
+  it('flags a truncated load so results are never silently incomplete', async () => {
+    const big = Array.from({ length: 100 }, () => medProject()[0]);
+    const c = fakeClient({ pages: Array.from({ length: 15 }, () => big) });
+    expect((await loadIssuesCapped(c, 'MED')).truncated).toBe(true);
+    expect((await loadContext(c, 'MED')).configErrors).toContain(TRUNCATED_NOTE);
+    const small = fakeClient();
+    expect((await loadIssuesCapped(small, 'MED')).truncated).toBe(false);
+    expect((await loadContext(small, 'MED')).configErrors).toEqual([]);
   });
   it('reports HTTP failures', async () => {
     const c: AtlassianClient = {

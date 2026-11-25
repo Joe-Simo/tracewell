@@ -46,7 +46,13 @@ export function checkProjectKey(projectKey: string): string {
   return projectKey;
 }
 
-export async function loadIssues(client: AtlassianClient, projectKey: string, cfg: TraceConfig = DEFAULT_CONFIG): Promise<JiraIssue[]> {
+export interface LoadedIssues {
+  issues: JiraIssue[];
+  /** True when the project has more traced issues than MAX_ISSUES, so the results are incomplete. */
+  truncated: boolean;
+}
+
+export async function loadIssuesCapped(client: AtlassianClient, projectKey: string, cfg: TraceConfig = DEFAULT_CONFIG): Promise<LoadedIssues> {
   const jql = projectJql(projectKey, cfg);
   const issues: JiraIssue[] = [];
   let nextPageToken: string | undefined;
@@ -60,8 +66,14 @@ export async function loadIssues(client: AtlassianClient, projectKey: string, cf
     issues.push(...(body.issues ?? []));
     nextPageToken = body.nextPageToken;
   } while (nextPageToken && issues.length < MAX_ISSUES);
-  return issues.slice(0, MAX_ISSUES);
+  return { issues: issues.slice(0, MAX_ISSUES), truncated: Boolean(nextPageToken) || issues.length > MAX_ISSUES };
 }
+
+export async function loadIssues(client: AtlassianClient, projectKey: string, cfg: TraceConfig = DEFAULT_CONFIG): Promise<JiraIssue[]> {
+  return (await loadIssuesCapped(client, projectKey, cfg)).issues;
+}
+
+export const TRUNCATED_NOTE = `Project has more than ${MAX_ISSUES} traced issues. Tracewell read the first ${MAX_ISSUES}, so gaps, coverage and release verdicts are incomplete.`;
 
 const propertyPath = (projectKey: string) =>
   `/rest/api/3/project/${checkProjectKey(projectKey)}/properties/${CONFIG_PROPERTY}`;
@@ -96,7 +108,9 @@ export interface TraceContext {
 
 export async function loadContext(client: AtlassianClient, projectKey: string, base: TraceConfig = DEFAULT_CONFIG): Promise<TraceContext> {
   const { config, errors } = await loadConfig(client, projectKey, base);
-  return { graph: await loadGraph(client, projectKey, config), cfg: config, configErrors: errors };
+  const { issues, truncated } = await loadIssuesCapped(client, projectKey, config);
+  const { items, links } = fromJira(issues, config);
+  return { graph: buildGraph(items, links), cfg: config, configErrors: truncated ? [...errors, TRUNCATED_NOTE] : errors };
 }
 
 export async function loadGraph(client: AtlassianClient, projectKey: string, cfg: TraceConfig = DEFAULT_CONFIG): Promise<TraceGraph> {

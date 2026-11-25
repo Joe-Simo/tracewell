@@ -175,7 +175,7 @@ const App = () => {
   return (
     <Stack space="space.200">
       {o.configErrors.length > 0 && (
-        <SectionMessage appearance="warning" title="Some Tracewell settings were ignored">
+        <SectionMessage appearance="warning" title="Tracewell notices">
           {o.configErrors.map((e) => (
             <Text key={e}>{e}</Text>
           ))}
